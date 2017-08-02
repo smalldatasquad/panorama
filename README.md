@@ -12,7 +12,7 @@ These are two Python scripts that searches and downloads raw data from your Gmai
 
 1. Python 3 
     1. First, you need Python 3.
-    2. (further installations to come here)
+    2. For OSX instructions. go to: http://python-guide-pt-br.readthedocs.io/en/latest/starting/install3/osx/
 2. Install the required libraries with pip.
     1. Type `pip3 install -r requirements.txt`
     
