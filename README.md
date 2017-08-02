@@ -18,7 +18,7 @@ These are two Python scripts.
     
 ## Gmail API setup
 
-We'll be following [these instructions](https://developers.google.com/gmail/api/quickstart/python) **this is important**    
+We'll be following [these instructions](GMAIL_API_SETUP.md) **this is important**    
 
 ## How to use `gmail_1_search_threads.py`
 
