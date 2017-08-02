@@ -72,9 +72,6 @@ def get_myprofile(service):
     myprofile = service.users().getProfile(userId='me').execute()
     return myprofile
 
-def query_to_filename(querystring):
-    return "data_from_gmailsearch__" + querystring + "__"
-
 
 def csvsave(filename, data):
     with open(filename, 'w') as fout:
@@ -164,13 +161,10 @@ def get_all_messages(service, querystring):
     return all_messages
 
 
-
-
-
-def get_all_messages(service, querystring):
-    all_messages = []
+def get_all_threads(service, querystring):
+    all_threads = []
     try:
-        message_count = 0
+        thread_count = 0
         start = True
         while start or 'nextPageToken' in response:
             if start:
@@ -179,25 +173,19 @@ def get_all_messages(service, querystring):
             else:
                 page_token = response['nextPageToken']
 
-            response = service.users().messages().list(userId='me', pageToken=page_token, q=querystring).execute()
-            if 'messages' in response:
-                print ("  == Loading ", message_count, "messages")
-                message_count += len(response['messages'])
-
-                for message in response['messages']:
-                    message_id = message['id']
-
-                    messageObj = get_message_from_id(service, message_id)
-                    print ("   = Loading message with SUBJECT: ", messageObj['Subject'], " TO: ", messageObj['To'])
-                    all_messages.append(messageObj) # this could hog up memory..
-
+            response = service.users().threads().list(userId='me', pageToken=page_token, q=querystring).execute()
+            if 'threads' in response:
+                thread_count += len(response['threads'])
+                print ("  == Loading ", thread_count, "threads")
+                for thread in response['threads']:
+                    thread['snippet'] = dehtml.dehtml(thread['snippet'])
+                    print(thread)
+                    all_threads.append(thread)
     except errors.HttpError as error:
-        print('An HTTPError occurred: %s' % error)
+            print('An HTTPError occurred: %s' % error)
+    return all_threads
 
-    return all_messages
-
-
-
+            
 def get_message_from_id(service, id):
     message_full = service.users().messages().get(userId='me', format='full', id=id).execute()
     ## THIS IS EACH OBJ

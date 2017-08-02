@@ -21,28 +21,6 @@ def parseargs():
 
 
 
-def queryrun(service):
-
-    
-    print(" === USING QUERY: ", querystring)
-    
-    print(" === GETTING MESSAGES: ", querystring)
-
-    filename = panorama.query_to_filename(querystring)
-
-    all_results = panorama.get_all_threads(service, querystring)
-    filename += "threads_"
-
-    # all_messages = panorama.get_all_messages(service, querystring)
-
-    print(" === SAVING TO JSON (filename): ", filename + ".json")
-    panorama.jsonsave(filename + ".json", all_results)
-    print(" === SAVED!")
-
-    print(" === SAVING TO CSV (filename): ", filename + ".csv")
-    panorama.csvsave(filename + ".csv", all_results)
-    print(" === SAVED!")
-    print(" ")
 
 def main():
     global service
@@ -67,9 +45,12 @@ def main():
         with open(inputfilename) as data:
             all_threads = json.load(data)
 
+            filename = "messages_" + inputfilename.split("threads_")[0]
+
+            print(filename)
+
             all_results = panorama.threads_to_messages(GMAIL, all_threads)
 
-            filename = inputfilename.split("__threads_")[0] + "__messages"
 
             print(" === SAVING TO JSON (filename): ", filename + ".json")
             panorama.jsonsave(filename + ".json", all_results)

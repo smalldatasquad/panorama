@@ -19,10 +19,9 @@ def queryrun(service):
     
     print(" === GETTING MESSAGES: ", querystring)
 
-    filename = panorama.query_to_filename(querystring)
+    filename = "threads_from_gmail_search__" + querystring 
 
     all_results = panorama.get_all_threads(service, querystring)
-    filename += "threads"
 
     print(" === SAVING TO JSON (filename): ", filename + ".json")
     panorama.jsonsave(filename + ".json", all_results)
