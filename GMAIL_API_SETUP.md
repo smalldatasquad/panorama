@@ -48,7 +48,7 @@
 
 ![gmail_api_step_12.png](instruction_imgs/gmail_api_step_12.png)
 
-This file should start with `client_secret_`. Move this file to the `Panorama` or `Panorama-master` directory.
+This file should start with `client_secret_`. Move this file to the `Panorama` or `Panorama-master` directory (the directory this file is in, that you just downloaded).
 
 Note:
 These instructions are adapted from [here](https://developers.google.com/gmail/api/quickstart/python).
