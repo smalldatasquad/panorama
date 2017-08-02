@@ -45,7 +45,7 @@ def main():
         with open(inputfilename) as data:
             all_threads = json.load(data)
 
-            filename = "messages_" + inputfilename.split("threads_")[1]
+            filename = panorama.sanitize("messages_" + inputfilename.split("threads_")[1])
 
             print(filename)
 

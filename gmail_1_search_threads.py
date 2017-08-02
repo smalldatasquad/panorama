@@ -2,7 +2,7 @@ import panorama
 
 def get_query_user_input(myprofile):
     print(" ===== Type in text to search.")
-    print("     = For example: 'from:", myprofile['emailAddress'], "friend'")
+    print("     = For example: 'trampoline before:2014/01/01' ")
     print("     = For example: 'from:", myprofile['emailAddress'], "to:otheremailaddress@email.com'")
     print("     = Queries 'from' you are usually better as they filter out spam.")
     print(" ===== Or to exit, hit control-C. ")
@@ -19,7 +19,7 @@ def queryrun(service):
     
     print(" === GETTING MESSAGES: ", querystring)
 
-    filename = "threads_from_gmail_search__" + querystring 
+    filename = panorama.sanitize("threads_from_gmail_search__" + querystring)
 
     all_results = panorama.get_all_threads(service, querystring)
 

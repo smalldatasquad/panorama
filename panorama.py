@@ -73,18 +73,26 @@ def get_myprofile(service):
     return myprofile
 
 
+def sanitize(filename):
+    import string
+    valid_chars = frozenset("-_.() %s%s" % (string.ascii_letters, string.digits))
+    newfilename = ''.join(c for c in filename if c in valid_chars)
+    newfilename = newfilename.replace(" ", "-")
+    return newfilename
+
 def csvsave(filename, data):
-    with open(filename, 'w') as fout:
-        writer = csv.DictWriter(fout, fieldnames=data[0].keys(), delimiter=",")    
-        writer.writeheader()
-        for row in data:
-            writer.writerow({k:v for k,v in row.items() })
+    if(len(data) > 0):
+        with open(sanitize(filename), 'w') as fout:
+            writer = csv.DictWriter(fout, fieldnames=data[0].keys(), delimiter=",")    
+            writer.writeheader()
+            for row in data:
+                writer.writerow({k:v for k,v in row.items() })
 
 
 def jsonsave(filename, data):
-    with io.open(filename, 'w', encoding='utf-8') as f:
-        f.write(json.dumps(data, ensure_ascii=False))
-
+    if(len(data) > 0):
+        with io.open(sanitize(filename), 'w', encoding='utf-8') as f:
+            f.write(json.dumps(data, ensure_ascii=False))
 
 def parse_reply_from_email(message):
     # not working right now
