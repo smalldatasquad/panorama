@@ -1,1 +1,12 @@
-bl
+![gmail_api_step_01.png](instruction_imgs/gmail_api_step_01.png)
+![gmail_api_step_02.png](instruction_imgs/gmail_api_step_02.png)
+![gmail_api_step_03.png](instruction_imgs/gmail_api_step_03.png)
+![gmail_api_step_04.png](instruction_imgs/gmail_api_step_04.png)
+![gmail_api_step_05.png](instruction_imgs/gmail_api_step_05.png)
+![gmail_api_step_06.png](instruction_imgs/gmail_api_step_06.png)
+![gmail_api_step_07.png](instruction_imgs/gmail_api_step_07.png)
+![gmail_api_step_08.png](instruction_imgs/gmail_api_step_08.png)
+![gmail_api_step_09.png](instruction_imgs/gmail_api_step_09.png)
+![gmail_api_step_10.png](instruction_imgs/gmail_api_step_10.png)
+![gmail_api_step_11.png](instruction_imgs/gmail_api_step_11.png)
+![gmail_api_step_12.png](instruction_imgs/gmail_api_step_12.png)
