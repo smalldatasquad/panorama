@@ -91,39 +91,6 @@ def process_save_message(request_id, response, exception):
         with open("mail/cur/%s" % message_id, "wb") as message_file:
             message_file.write(maildir_message.__bytes__())
 
-def batch_all_messages(service, querystring, callback):
-    page_token = None
-    message_count = 0
-    try:
-        # message_count = 0
-        # start = True
-        # while start or 'nextPageToken' in response:
-            # if start:
-                # page_token = None
-                # start = False
-            # else:
-                # page_token = response['nextPageToken']
-        response = service.users().messages().list(userId='me', pageToken=page_token, q=querystring).execute()
-        if 'messages' in response:
-            message_count += len(response['messages'])
-            existing_message_count = 0
-            batch = BatchHttpRequest(callback=callback)
-            for message in response['messages']:
-                message_id = message['id']
-                if os.path.exists('mail/cur/%s' % message_id):
-                    existing_message_count+=1
-                else:
-                    print("Adding to batch", message_id)
-                    batch.add(service.users().messages().get(userId='me', format='raw', id=message_id))
-            print("Executing batch...")
-            batch.execute()
-            info = "Downloaded %s messages" % message_count
-            if existing_message_count:
-                info += " (skipping %s messages already downloaded)" % existing_message_count
-            print(info)
-
-    except errors.HttpError as error:
-        print('An HTTPError occurred: %s' % error)
 
 def handle_message(response):
     #print(response)
@@ -158,7 +125,7 @@ def get_message_body(id):
 #    print(dehtml.dehtml(str(maildir_message.__bytes__())))
 
 
-def message_title_snippet(response):
+def raw_message_to_obj(response):
     global service
     obj = collections.OrderedDict()
 
@@ -179,7 +146,8 @@ def message_title_snippet(response):
         print('An Error occurred: %s' % error)
     return obj
 
-def get_all_messages(querystring, callback):
+
+def get_all_messages(querystring):
     global service
     try:
         message_count = 0
@@ -196,7 +164,8 @@ def get_all_messages(querystring, callback):
                 for message in response['messages']:
                     message_id = message['id']
                     message_full = service.users().messages().get(userId='me', format='full', id=message_id).execute()
-                    callback(message_full)
+                    messageObj = raw_message_to_obj(message_full)
+
                     return
     except errors.HttpError as error:
         print('An HTTPError occurred: %s' % error)
@@ -220,13 +189,10 @@ def get_all_threads(querystring):
             #print(html2text.html2text(thread['snippet']))
 
 
+####################3
+
 def main():
     global service
-    """Shows basic usage of the Gmail API.
-
-    Creates a Gmail API service object and outputs a list of thread names
-    of the user's Gmail account.
-    """
 
     service = start_gmail_service()
 
@@ -235,7 +201,7 @@ def main():
 
     querystring = "from:" + myprofile['emailAddress'] + " " + "fuck"
 
-    get_all_messages(querystring, callback=message_title_snippet)
+    get_all_messages(querystring)
 
 #    get_all_threads(service, querystring)
 
