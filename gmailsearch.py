@@ -13,7 +13,6 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-import html2text
 import dehtml
 from email_reply_parser import EmailReplyParser
 
@@ -70,11 +69,13 @@ def start_gmail_service():
 
 
 
-def save_message_obj(querystring, message_obj):
-    print(querystring)
-    filename = "json_from_gmailsearch__" + querystring + "__.json"
-    with io.open(filename, 'a', encoding='utf-8') as f:
-        f.write(json.dumps(message_obj, ensure_ascii=False))
+
+def query_to_filename(querystring):
+    return "json_from_gmailsearch__" + querystring + "__.json"
+
+def jsonsave(data, filename):
+    with io.open(filename, 'w', encoding='utf-8') as f:
+        f.write(json.dumps(data, ensure_ascii=False))
 
 
 
@@ -87,41 +88,55 @@ def raw_message_to_obj(response):
     # print(response['payload']['headers'])
 
     def email_from_raw(raw):
+        print("111")
         msg_bytes = base64.urlsafe_b64decode(raw.encode('ASCII'))
+        print("113331")
         mime_msg = email.message_from_bytes(msg_bytes)
-        maildir_message = str(mailbox.MaildirMessage(mime_msg))
+        print("113388831")
+        maildir_message = mailbox.MaildirMessage(mime_msg)
+        print("11338883kkk1")
         return maildir_message
 
     def parse_reply_from_email(message):
+        print("parserpely")
         return EmailReplyParser.parse_reply(message)
 
 
     fields = ['Subject', 'Date', 'From', 'To', 'Cc', 'Message-ID']
 
+    print("aa")
     try:
         ## THIS IS WHERE THINGS HAPPEN
         for f in fields:
             v = [x['value'] for x in response['payload']['headers'] if x['name'] == f]
             obj[f] = ''.join(v) #if v is empty array, resolves to empty string
         obj['snippet'] = dehtml.dehtml(response['snippet'])
-        reply = parse_reply_from_email(email_from_raw(response['payload']['parts'][0]['body']['data']))
-        obj['full'] = reply
+        print("bbb")
+        try: 
+            reply = parse_reply_from_email(email_from_raw(response['payload']['parts'][0]['body']['data']))
+            obj['full'] = reply
+            print("bbcccb")
+        except:
+            pass
     except Exception as error:
         print('An Error occurred: %s' % error)
     return obj
 
 
 def get_all_messages(querystring):
+    all_messages = []
     global service
     try:
         message_count = 0
         start = True
         while start or 'nextPageToken' in response:
+            print("PING")
             if start:
                 page_token = None
                 start = False
             else:
                 page_token = response['nextPageToken']
+
             response = service.users().messages().list(userId='me', pageToken=page_token, q=querystring).execute()
             if 'messages' in response:
                 message_count += len(response['messages'])
@@ -131,11 +146,13 @@ def get_all_messages(querystring):
 
                     ## THIS IS EACH OBJ
                     messageObj = raw_message_to_obj(message_full)
-                    save_message_obj(querystring,messageObj)
-                    print(messageObj)
+                    all_messages.append(messageObj) # this could hog up memory..
 
+            print("PINK")
     except errors.HttpError as error:
         print('An HTTPError occurred: %s' % error)
+
+    return all_messages
 
 
 
@@ -169,8 +186,11 @@ def main():
 
     querystring = "from:" + myprofile['emailAddress'] + " " + "fuck"
 
-    get_all_messages(querystring)
+    all_messages = get_all_messages(querystring)
 
+    filename = query_to_filename(querystring)
+
+    jsonsave(all_messages, filename)
 #    get_all_threads(service, querystring)
 
 
