@@ -16,7 +16,6 @@ from oauth2client import tools
 from oauth2client.file import Storage
 
 import dehtml
-from email_reply_parser import EmailReplyParser
 
 
 # If modifying these scopes, delete your previously saved credentials
