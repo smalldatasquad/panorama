@@ -50,5 +50,7 @@
 
 This file should start with `client_secret_`. Move this file to the `Panorama` or `Panorama-master` directory (the directory this file is in, that you just downloaded).
 
+**Lastly, execute `python3 gmail_0_setup.py`**
+
 Note:
 These instructions are adapted from [here](https://developers.google.com/gmail/api/quickstart/python).
