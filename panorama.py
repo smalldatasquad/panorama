@@ -17,6 +17,7 @@ from oauth2client.file import Storage
 
 import dehtml
 
+from email_reply_parser import EmailReplyParser
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/gmail-python-quickstart.json
@@ -98,6 +99,23 @@ def parse_reply_from_email(message):
     # not working right now
     return EmailReplyParser.parse_reply(message)
 
+def email_from_raw(raw):
+    msg_bytes = base64.urlsafe_b64decode(raw.encode('ASCII'))
+    mime_msg = email.message_from_bytes(msg_bytes)
+    maildir_message = str(mailbox.MaildirMessage(mime_msg))
+    return maildir_message
+
+def parse_multipart_message(response):
+    parts = []
+    if 'parts' in response['payload']:
+        for p in response['payload']['parts']:
+            parts.append(p['body']['data'])
+    else:
+        parts.append(response['payload']['body']['data'])
+    message = ""
+    for p in parts:
+        message += email_from_raw(p)
+    return parse_reply_from_email(message)
 
 def raw_message_to_obj(response):
     global service
@@ -107,11 +125,6 @@ def raw_message_to_obj(response):
     # print(response['payload'].keys())
     # print(response['payload']['headers'])
 
-    def email_from_raw(raw):
-        msg_bytes = base64.urlsafe_b64decode(raw.encode('ASCII'))
-        mime_msg = email.message_from_bytes(msg_bytes)
-        maildir_message = mailbox.MaildirMessage(mime_msg)
-        return maildir_message
 
 
     fields = ['Subject', 'Date', 'From', 'To', 'Cc', 'Message-ID']
@@ -126,6 +139,10 @@ def raw_message_to_obj(response):
         for f in fields[1:]:
             v = [x['value'] for x in response['payload']['headers'] if x['name'] == f]
             obj[f] = ''.join(v) #if v is empty array, resolves to empty string
+
+
+        message = parse_multipart_message(response) #UNCOMMENT THIS IF NECESSARY
+        obj['message'] = message
 
     except Exception as error:
         print('An Error occurred: %s' % error)
