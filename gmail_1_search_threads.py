@@ -22,9 +22,7 @@ def queryrun(service):
     filename = panorama.query_to_filename(querystring)
 
     all_results = panorama.get_all_threads(service, querystring)
-    filename += "threads_"
-
-    # all_messages = panorama.get_all_messages(service, querystring)
+    filename += "threads"
 
     print(" === SAVING TO JSON (filename): ", filename + ".json")
     panorama.jsonsave(filename + ".json", all_results)

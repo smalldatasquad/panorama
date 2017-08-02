@@ -18,11 +18,6 @@ from oauth2client.file import Storage
 import dehtml
 from email_reply_parser import EmailReplyParser
 
-try:
-    import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-except ImportError:
-    flags = None
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/gmail-python-quickstart.json
@@ -79,7 +74,7 @@ def get_myprofile(service):
     return myprofile
 
 def query_to_filename(querystring):
-    return "json_from_gmailsearch__" + querystring + "__"
+    return "data_from_gmailsearch__" + querystring + "__"
 
 
 def csvsave(filename, data):
@@ -136,6 +131,8 @@ def raw_message_to_obj(response):
     return obj
 
 
+
+
 def get_all_messages(service, querystring):
     all_messages = []
     try:
@@ -168,10 +165,13 @@ def get_all_messages(service, querystring):
     return all_messages
 
 
-def get_all_threads(service, querystring):
-    all_threads = []
+
+
+
+def get_all_messages(service, querystring):
+    all_messages = []
     try:
-        thread_count = 0
+        message_count = 0
         start = True
         while start or 'nextPageToken' in response:
             if start:
@@ -180,35 +180,46 @@ def get_all_threads(service, querystring):
             else:
                 page_token = response['nextPageToken']
 
-            response = service.users().threads().list(userId='me', pageToken=page_token, q=querystring).execute()
-            if 'threads' in response:
-                print ("  == Loading ", thread_count, "threads")
-                thread_count += len(response['threads'])
+            response = service.users().messages().list(userId='me', pageToken=page_token, q=querystring).execute()
+            if 'messages' in response:
+                print ("  == Loading ", message_count, "messages")
+                message_count += len(response['messages'])
 
-                for thread in response['threads']:
-                    cleansnippet = dehtml.dehtml(thread['snippet'])
-                    print("     ", cleansnippet)
-                    all_threads.append(thread)
+                for message in response['messages']:
+                    message_id = message['id']
+
+                    messageObj = get_message_from_id(service, message_id)
+                    print ("   = Loading message with SUBJECT: ", messageObj['Subject'], " TO: ", messageObj['To'])
+                    all_messages.append(messageObj) # this could hog up memory..
 
     except errors.HttpError as error:
         print('An HTTPError occurred: %s' % error)
 
-    return all_threads
+    return all_messages
 
 
 
-# def get_all_threads(service, querystring):
-    # results = service.users().threads().list(userId='me', q=querystring).execute()
-    # threads = results.get('threads', [])
-    # if not threads:
-        # print('No threads found.')
-    # else:
-        # print('Threads:')
-        # for thread in threads:
-            # # tdata =.users().threads().get(userId='me', id=thread['id']).execute()
-            # # nmsgs = len(tdata['messages'])
+def get_message_from_id(service, id):
+    message_full = service.users().messages().get(userId='me', format='full', id=id).execute()
+    ## THIS IS EACH OBJ
+    messageObj = raw_message_to_obj(message_full)
+    return messageObj
 
-            # # if nmsgs > 2:
-            # #print(html2text.html2text(thread['snippet']))
+
+
+def threads_to_messages(service, all_threads):
+    all_messages = []
+    for thread in all_threads:
+        try:
+            messageObj = get_message_from_id(service, thread['id'])
+            try: 
+                print ("   = Converting Thread to Message: with SUBJECT: ", messageObj['Subject'], " TO: ", messageObj['To'])
+                all_messages.append(messageObj) # this could hog up memory..
+            except Exception as error:
+                print("Some small error occurred, don't worry about it: %s" % error)
+        except errors.HttpError as error:
+            print('An HTTPError occurred: %s' % error)
+
+    return all_messages
 
 
