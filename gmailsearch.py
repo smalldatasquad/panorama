@@ -5,6 +5,7 @@ import base64
 import email
 import mailbox
 import collections
+import io, json
 
 from apiclient.http import BatchHttpRequest
 from apiclient import discovery, errors
@@ -15,7 +16,6 @@ from oauth2client.file import Storage
 import html2text
 import dehtml
 from email_reply_parser import EmailReplyParser
-
 
 try:
     import argparse
@@ -70,17 +70,11 @@ def start_gmail_service():
 
 
 
-def process_save_message(request_id, response, exception):
-    if exception is not None:
-        print("ERROR: " + request_id)
-    else:
-        msg_bytes = base64.urlsafe_b64decode(response['raw'].encode('ASCII'))
-        mime_msg = email.message_from_bytes(msg_bytes)
-        maildir_message = mailbox.MaildirMessage(mime_msg)
-        #box.add(maildir_message)
-        message_id = response['id']
-        with open("mail/cur/%s" % message_id, "wb") as message_file:
-            message_file.write(maildir_message.__bytes__())
+def save_message_obj(querystring, message_obj):
+    print(querystring)
+    filename = "json_from_gmailsearch__" + querystring + "__.json"
+    with io.open(filename, 'a', encoding='utf-8') as f:
+        f.write(json.dumps(message_obj, ensure_ascii=False))
 
 
 
@@ -107,9 +101,9 @@ def raw_message_to_obj(response):
     try:
         ## THIS IS WHERE THINGS HAPPEN
         for f in fields:
-            obj[f] = [x['value'] for x in response['payload']['headers'] if x['name'] == f][0]
+            v = [x['value'] for x in response['payload']['headers'] if x['name'] == f]
+            obj[f] = ''.join(v) #if v is empty array, resolves to empty string
         obj['snippet'] = dehtml.dehtml(response['snippet'])
-        print("yo")
         reply = parse_reply_from_email(email_from_raw(response['payload']['parts'][0]['body']['data']))
         obj['full'] = reply
     except Exception as error:
@@ -137,6 +131,7 @@ def get_all_messages(querystring):
 
                     ## THIS IS EACH OBJ
                     messageObj = raw_message_to_obj(message_full)
+                    save_message_obj(querystring,messageObj)
                     print(messageObj)
 
     except errors.HttpError as error:
@@ -165,6 +160,7 @@ def get_all_threads(querystring):
 
 def main():
     global service
+    global myprofile
 
     service = start_gmail_service()
 
