@@ -6,6 +6,7 @@ import email
 import mailbox
 import collections
 import io, json
+import csv
 
 from apiclient.http import BatchHttpRequest
 from apiclient import discovery, errors
@@ -69,14 +70,26 @@ def start_gmail_service():
 
 
 
-
 def query_to_filename(querystring):
-    return "json_from_gmailsearch__" + querystring + "__.json"
+    return "json_from_gmailsearch__" + querystring + "__"
 
-def jsonsave(data, filename):
+
+def csvsave(filename, data):
+    with open(filename, 'w') as fout:
+        writer = csv.DictWriter(fout, fieldnames=data[0].keys(), delimiter=",")    
+        writer.writeheader()
+        for row in data:
+            writer.writerow({k:v for k,v in row.items() })
+
+
+def jsonsave(filename, data):
     with io.open(filename, 'w', encoding='utf-8') as f:
         f.write(json.dumps(data, ensure_ascii=False))
 
+
+def parse_reply_from_email(message):
+    # not working right now
+    return EmailReplyParser.parse_reply(message)
 
 
 def raw_message_to_obj(response):
@@ -88,36 +101,28 @@ def raw_message_to_obj(response):
     # print(response['payload']['headers'])
 
     def email_from_raw(raw):
-        print("111")
         msg_bytes = base64.urlsafe_b64decode(raw.encode('ASCII'))
-        print("113331")
         mime_msg = email.message_from_bytes(msg_bytes)
-        print("113388831")
         maildir_message = mailbox.MaildirMessage(mime_msg)
-        print("11338883kkk1")
         return maildir_message
-
-    def parse_reply_from_email(message):
-        print("parserpely")
-        return EmailReplyParser.parse_reply(message)
 
 
     fields = ['Subject', 'Date', 'From', 'To', 'Cc', 'Message-ID']
 
-    print("aa")
     try:
         ## THIS IS WHERE THINGS HAPPEN
         for f in fields:
             v = [x['value'] for x in response['payload']['headers'] if x['name'] == f]
             obj[f] = ''.join(v) #if v is empty array, resolves to empty string
         obj['snippet'] = dehtml.dehtml(response['snippet'])
-        print("bbb")
-        try: 
-            reply = parse_reply_from_email(email_from_raw(response['payload']['parts'][0]['body']['data']))
-            obj['full'] = reply
-            print("bbcccb")
-        except:
-            pass
+        # try: 
+            # raw_email = email_from_raw(response['payload']['parts'][0]['body']['data'])
+            # reply = parse_reply_from_email(raw_email)
+            # print(reply)
+            # obj['full'] = reply
+        # except:
+            # print("ERRRRRRRRR")
+            # pass
     except Exception as error:
         print('An Error occurred: %s' % error)
     return obj
@@ -130,7 +135,6 @@ def get_all_messages(querystring):
         message_count = 0
         start = True
         while start or 'nextPageToken' in response:
-            print("PING")
             if start:
                 page_token = None
                 start = False
@@ -140,15 +144,16 @@ def get_all_messages(querystring):
             response = service.users().messages().list(userId='me', pageToken=page_token, q=querystring).execute()
             if 'messages' in response:
                 message_count += len(response['messages'])
+
                 for message in response['messages']:
                     message_id = message['id']
                     message_full = service.users().messages().get(userId='me', format='full', id=message_id).execute()
 
                     ## THIS IS EACH OBJ
                     messageObj = raw_message_to_obj(message_full)
+                    print (" === LOADING message with subject: ", messageObj['Subject'], " to: ", messageObj['To'])
                     all_messages.append(messageObj) # this could hog up memory..
 
-            print("PINK")
     except errors.HttpError as error:
         print('An HTTPError occurred: %s' % error)
 
@@ -186,12 +191,13 @@ def main():
 
     querystring = "from:" + myprofile['emailAddress'] + " " + "fuck"
 
-    all_messages = get_all_messages(querystring)
+#    get_all_threads( querystring)
 
+    all_messages = get_all_messages(querystring)
     filename = query_to_filename(querystring)
 
-    jsonsave(all_messages, filename)
-#    get_all_threads(service, querystring)
+    #jsonsave(filename + ".json", all_messages)
+    csvsave(filename + ".csv", all_messages)
 
 
 if __name__ == '__main__':
