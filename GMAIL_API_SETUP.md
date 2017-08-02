@@ -30,7 +30,7 @@ We're going to follow (these instructions)[https://developers.google.com/gmail/a
 
 ![gmail_api_step_07.png](instruction_imgs/gmail_api_step_07.png)
 
-**At the top of the page, select the OAuth consent screen tab. **
+**At the top of the page, select the OAuth consent screen tab.**
 
 ![gmail_api_step_08.png](instruction_imgs/gmail_api_step_08.png)
 
@@ -50,5 +50,5 @@ We're going to follow (these instructions)[https://developers.google.com/gmail/a
 
 ![gmail_api_step_12.png](instruction_imgs/gmail_api_step_12.png)
 
-Move this file to your working directory.
+This file should start with `client_secret_`. Move this file to the `Panorama` or `Panorama-master` directory.
 
