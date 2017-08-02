@@ -14,35 +14,27 @@ These are two Python scripts.
     1. First, you need Python 3.
     2. (further installations to come here)
 2. Install the required libraries with pip.
-    1. Type `pip install -r requirements.txt`
+    1. Type `pip3 install -r requirements.txt`
     
 ## Gmail API setup
 
-We'll be following [these instructions](https://developers.google.com/gmail/api/quickstart/python)
-
-3. Gmail API setup
-    
+We'll be following [these instructions](https://developers.google.com/gmail/api/quickstart/python) **this is important**    
 
 ## How to use `gmail_1_search_threads.py`
 
-1. Download your search queries from [Google Takeout](https://takeout.google.com/settings/takeout/custom/search). (This can take some time, so try to do this as soon as possible!)
+1. Run the script with `python3 gmail_1_search_threads.py`.
 
-2. If you open the .zip archive, there should be a folder called `Searches`. Copy this to this folder (the one that `gmail_1_search_threads.py` is in).
+2. Enter in a query. You can use any of the [Gmail search query terms here.](https://developers.google.com/gmail/api/quickstart/python)
 
-3. In a terminal such as Terminal (Mac) or Command Prompt (PC), navigate to this folder. For help navigating, see [this for Windows](http://www.digitalcitizen.life/command-prompt-how-use-basic-commands) or [this for OSX/Linux](https://www.digitalocean.com/community/tutorials/how-to-use-cd-pwd-and-ls-to-explore-the-file-system-on-a-linux-server).
+3. For example, try `dear friend before:2016/01/01` or `from:smalldatasquad@gmail.com`
 
-4. Run the script with `python gmail_1_search_threads.py`.
-
-5. (For advanced users - there are some options you can explore with `-h`.)
-
-6. The script should consolidate all of your files in `Searches` into one file called `all_google_queries_simplified.json` and `all_google_queries_simplified.csv`.
-
+4. The script will output a short summary of all of your messages into one file starting with `threads_from_gmail`.
 
 ## How to use `gmail_2_expand_threads_to_messages.py`
 
-1. Make sure you've already run `gmail_1_search_threads.py`.
+1. Make sure you've already run `gmail_1_search_threads.py`. This relies on the output.
 
-2. Run the script with `python gmail_2_expand_threads_to_messages.py`. This will process your queries and give you an interactive!! way to choose between searching your queries. 
+2. Run the script with `python3 gmail_2_expand_threads_to_messages.py`. This will process your queries and give you an interactive!! way to choose between searching your queries. 
 
 ### Searching text (basic)
  
