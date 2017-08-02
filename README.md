@@ -8,13 +8,20 @@ These are two Python scripts.
 
 `gmail_2_expand_threads_to_messages.py` converts the output file from above and looks up each individual message. This is more slow.
 
-## Setup
+## Python setup
 
 1. Python 3 
     1. First, you need Python 3.
     2. (further installations to come here)
-2. Blah
+2. Install the required libraries with pip.
+    1. Type `pip install -r requirements.txt`
+    
+## Gmail API setup
 
+We'll be following [these instructions](https://developers.google.com/gmail/api/quickstart/python)
+
+3. Gmail API setup
+    
 
 ## How to use `gmail_1_search_threads.py`
 
