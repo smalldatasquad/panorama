@@ -7,6 +7,7 @@ import mailbox
 import collections
 import io, json
 import csv
+import glob
 
 from apiclient.http import BatchHttpRequest
 from apiclient import discovery, errors
@@ -26,12 +27,16 @@ except ImportError:
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/gmail-python-quickstart.json
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
-#CLIENT_SECRET_FILE = 'client_secret.json'
-CLIENT_SECRET_FILE = 'client_secret_25620108186-qr3kcg5v4rbv1r1pg3lri1sb2livbvir.apps.googleusercontent.com.json'
-APPLICATION_NAME = 'Gmail API Python Quickstart'
+APPLICATION_NAME = 'Gmail API Panorama'
 
+def autodetect_client_secret_filename():
+    try:
+        res = glob.glob("client_secret*.json")
+        return res[0]
+    except:
+        return None
 
-def start_gmail_service():
+def start_gmail_service(CLIENT_SECRET_FILE):
 
     def get_credentials():
         """Gets valid user credentials from storage.
@@ -69,6 +74,9 @@ def start_gmail_service():
     return service
 
 
+def get_myprofile(service):
+    myprofile = service.users().getProfile(userId='me').execute()
+    return myprofile
 
 def query_to_filename(querystring):
     return "json_from_gmailsearch__" + querystring + "__"
@@ -128,9 +136,8 @@ def raw_message_to_obj(response):
     return obj
 
 
-def get_all_messages(querystring):
+def get_all_messages(service, querystring):
     all_messages = []
-    global service
     try:
         message_count = 0
         start = True
@@ -143,6 +150,7 @@ def get_all_messages(querystring):
 
             response = service.users().messages().list(userId='me', pageToken=page_token, q=querystring).execute()
             if 'messages' in response:
+                print ("  == Loading ", message_count, "messages")
                 message_count += len(response['messages'])
 
                 for message in response['messages']:
@@ -151,7 +159,7 @@ def get_all_messages(querystring):
 
                     ## THIS IS EACH OBJ
                     messageObj = raw_message_to_obj(message_full)
-                    print (" === LOADING message with subject: ", messageObj['Subject'], " to: ", messageObj['To'])
+                    print ("   = Loading message with SUBJECT: ", messageObj['Subject'], " TO: ", messageObj['To'])
                     all_messages.append(messageObj) # this could hog up memory..
 
     except errors.HttpError as error:
@@ -160,45 +168,47 @@ def get_all_messages(querystring):
     return all_messages
 
 
+def get_all_threads(service, querystring):
+    all_threads = []
+    try:
+        thread_count = 0
+        start = True
+        while start or 'nextPageToken' in response:
+            if start:
+                page_token = None
+                start = False
+            else:
+                page_token = response['nextPageToken']
 
-def get_all_threads(querystring):
-    global service
-    results = service.users().threads().list(userId='me', q=querystring).execute()
-    threads = results.get('threads', [])
-    if not threads:
-        print('No threads found.')
-    else:
-        print('Threads:')
-        for thread in threads:
-            # tdata =.users().threads().get(userId='me', id=thread['id']).execute()
-            # nmsgs = len(tdata['messages'])
+            response = service.users().threads().list(userId='me', pageToken=page_token, q=querystring).execute()
+            if 'threads' in response:
+                print ("  == Loading ", thread_count, "threads")
+                thread_count += len(response['threads'])
 
-            # if nmsgs > 2:
-            print(dehtml.dehtml(thread['snippet']))
-            #print(html2text.html2text(thread['snippet']))
+                for thread in response['threads']:
+                    cleansnippet = dehtml.dehtml(thread['snippet'])
+                    print("     ", cleansnippet)
+                    all_threads.append(thread)
 
+    except errors.HttpError as error:
+        print('An HTTPError occurred: %s' % error)
 
-####################3
-
-def main():
-    global service
-    global myprofile
-
-    service = start_gmail_service()
-
-    myprofile = service.users().getProfile(userId='me').execute()
-    print("There are {messagesTotal} messages for {emailAddress}".format(**myprofile))
-
-    querystring = "from:" + myprofile['emailAddress'] + " " + "fuck"
-
-#    get_all_threads( querystring)
-
-    all_messages = get_all_messages(querystring)
-    filename = query_to_filename(querystring)
-
-    #jsonsave(filename + ".json", all_messages)
-    csvsave(filename + ".csv", all_messages)
+    return all_threads
 
 
-if __name__ == '__main__':
-    main()
+
+# def get_all_threads(service, querystring):
+    # results = service.users().threads().list(userId='me', q=querystring).execute()
+    # threads = results.get('threads', [])
+    # if not threads:
+        # print('No threads found.')
+    # else:
+        # print('Threads:')
+        # for thread in threads:
+            # # tdata =.users().threads().get(userId='me', id=thread['id']).execute()
+            # # nmsgs = len(tdata['messages'])
+
+            # # if nmsgs > 2:
+            # #print(html2text.html2text(thread['snippet']))
+
+
