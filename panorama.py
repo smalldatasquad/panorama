@@ -114,11 +114,11 @@ def raw_message_to_obj(response):
             v = [x['value'] for x in response['payload']['headers'] if x['name'] == f]
             obj[f] = ''.join(v) #if v is empty array, resolves to empty string
         obj['snippet'] = dehtml.dehtml(response['snippet'])
+        # we do this because obj is an ordered dict and we want subject, then snippet
         for f in fields[1:]:
             v = [x['value'] for x in response['payload']['headers'] if x['name'] == f]
             obj[f] = ''.join(v) #if v is empty array, resolves to empty string
 
-        # we do this because obj is an ordered dict and we want subject, then snippet
     except Exception as error:
         print('An Error occurred: %s' % error)
     return obj

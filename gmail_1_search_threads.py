@@ -31,6 +31,7 @@ def queryrun(service):
     panorama.csvsave(filename + ".csv", all_results)
     print(" === SAVED!")
     print(" ")
+    print("Keep on searching or press Control-C and try running ` python3 gmail_2_expand_threads_to_messages.py", filename + ".json", "` (minus the quotes)")
 
 def main():
     global service
