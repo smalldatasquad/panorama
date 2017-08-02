@@ -110,18 +110,15 @@ def raw_message_to_obj(response):
 
     try:
         ## THIS IS WHERE THINGS HAPPEN
-        for f in fields:
+        for f in fields[:1]:
             v = [x['value'] for x in response['payload']['headers'] if x['name'] == f]
             obj[f] = ''.join(v) #if v is empty array, resolves to empty string
         obj['snippet'] = dehtml.dehtml(response['snippet'])
-        # try: 
-            # raw_email = email_from_raw(response['payload']['parts'][0]['body']['data'])
-            # reply = parse_reply_from_email(raw_email)
-            # print(reply)
-            # obj['full'] = reply
-        # except:
-            # print("ERRRRRRRRR")
-            # pass
+        for f in fields[1:]:
+            v = [x['value'] for x in response['payload']['headers'] if x['name'] == f]
+            obj[f] = ''.join(v) #if v is empty array, resolves to empty string
+
+        # we do this because obj is an ordered dict and we want subject, then snippet
     except Exception as error:
         print('An Error occurred: %s' % error)
     return obj
