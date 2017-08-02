@@ -2,7 +2,7 @@
 
 ## What this is
 
-These are two Python scripts.
+These are two Python scripts that searches and downloads raw data from your Gmail account.
 
 `gmail_1_search_threads.py` searches your Gmail account for 'threads' and saves it to a file. This is very fast.
 
