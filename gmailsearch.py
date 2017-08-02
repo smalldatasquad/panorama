@@ -31,53 +31,44 @@ CLIENT_SECRET_FILE = 'client_secret_25620108186-qr3kcg5v4rbv1r1pg3lri1sb2livbvir
 APPLICATION_NAME = 'Gmail API Python Quickstart'
 
 
-def get_credentials():
-    """Gets valid user credentials from storage.
-
-    If nothing has been stored, or if the stored credentials are invalid,
-    the OAuth2 flow is completed to obtain the new credentials.
-
-    Returns:
-        Credentials, the obtained credential.
-    """
-    home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials')
-    if not os.path.exists(credential_dir):
-        os.makedirs(credential_dir)
-    credential_path = os.path.join(credential_dir,
-                                   'gmail-python-quickstart.json')
-
-    store = Storage(credential_path)
-    credentials = store.get()
-    if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
-        flow.user_agent = APPLICATION_NAME
-        if flags:
-            credentials = tools.run_flow(flow, store, flags)
-        else: # Needed only for compatibility with Python 2.6
-            credentials = tools.run(flow, store)
-        print('Storing credentials to ' + credential_path)
-    return credentials
-
 def start_gmail_service():
+
+    def get_credentials():
+        """Gets valid user credentials from storage.
+
+        If nothing has been stored, or if the stored credentials are invalid,
+        the OAuth2 flow is completed to obtain the new credentials.
+
+        Returns:
+            Credentials, the obtained credential.
+        """
+        home_dir = os.path.expanduser('~')
+        credential_dir = os.path.join(home_dir, '.credentials')
+        if not os.path.exists(credential_dir):
+            os.makedirs(credential_dir)
+        credential_path = os.path.join(credential_dir,
+                                       'gmail-python-quickstart.json')
+
+        store = Storage(credential_path)
+        credentials = store.get()
+        if not credentials or credentials.invalid:
+            flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+            flow.user_agent = APPLICATION_NAME
+            if flags:
+                credentials = tools.run_flow(flow, store, flags)
+            else: # Needed only for compatibility with Python 2.6
+                credentials = tools.run(flow, store)
+            print('Storing credentials to ' + credential_path)
+        return credentials
+
+
+
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('gmail', 'v1', http=http)
     return service
 
 
-def process_print_message(request_id, response, exception):
-    if exception is not None:
-        print("ERROR: " + request_id)
-    else:
-        print(html2text.html2text(response['raw'].encode('ASCII')))
-
-        # msg_bytes = base64.urlsafe_b64decode(response['raw'].encode('ASCII'))
-        # mime_msg = email.message_from_bytes(msg_bytes)
-        # maildir_message = mailbox.MaildirMessage(mime_msg)
-        # #box.add(maildir_message)
-        # message_id = response['id']
-        # print(message_id)
 
 def process_save_message(request_id, response, exception):
     if exception is not None:
@@ -92,38 +83,6 @@ def process_save_message(request_id, response, exception):
             message_file.write(maildir_message.__bytes__())
 
 
-def handle_message(response):
-    #print(response)
-    msg_bytes = base64.urlsafe_b64decode(response['raw'].encode('ASCII'))
-    mime_msg = email.message_from_bytes(msg_bytes)
-    #mime_msg = email.message_from_string(response['raw'].encode('ASCII'))
-    #print(mime_msg)
-    maildir_message = mailbox.MaildirMessage(mime_msg)
-    #box.add(maildir_message)
-    message_id = response['id']
-    print(html2text.html2text(str(maildir_message.__bytes__())))
-#    print(maildir_message.__bytes__())
-
-def email_from_raw(raw):
-    msg_bytes = base64.urlsafe_b64decode(raw.encode('ASCII'))
-    mime_msg = email.message_from_bytes(msg_bytes)
-    maildir_message = str(mailbox.MaildirMessage(mime_msg))
-    return maildir_message
-
-def parse_reply_from_email(message):
-    return EmailReplyParser.parse_reply(message)
-
-
-def get_message_body(id):
-    response = service.users().messages().get(userId='me', format='raw', id=id).execute()
-    msg_bytes = base64.urlsafe_b64decode(response['raw'].encode('ASCII'))
-    mime_msg = email.message_from_bytes(msg_bytes)
-    maildir_message = mailbox.MaildirMessage(mime_msg)
-    message_id = response['id']
-    print(str(maildir_message.__bytes__()))
-#    print(html2text.html2text(str(maildir_message.__bytes__())))
-#    print(dehtml.dehtml(str(maildir_message.__bytes__())))
-
 
 def raw_message_to_obj(response):
     global service
@@ -132,6 +91,16 @@ def raw_message_to_obj(response):
     # print(response.keys())
     # print(response['payload'].keys())
     # print(response['payload']['headers'])
+
+    def email_from_raw(raw):
+        msg_bytes = base64.urlsafe_b64decode(raw.encode('ASCII'))
+        mime_msg = email.message_from_bytes(msg_bytes)
+        maildir_message = str(mailbox.MaildirMessage(mime_msg))
+        return maildir_message
+
+    def parse_reply_from_email(message):
+        return EmailReplyParser.parse_reply(message)
+
 
     fields = ['Subject', 'Date', 'From', 'To', 'Cc', 'Message-ID']
 
