@@ -109,6 +109,7 @@ def raw_message_to_obj(response):
         for f in fields:
             obj[f] = [x['value'] for x in response['payload']['headers'] if x['name'] == f][0]
         obj['snippet'] = dehtml.dehtml(response['snippet'])
+        print("yo")
         reply = parse_reply_from_email(email_from_raw(response['payload']['parts'][0]['body']['data']))
         obj['full'] = reply
     except Exception as error:
@@ -133,9 +134,11 @@ def get_all_messages(querystring):
                 for message in response['messages']:
                     message_id = message['id']
                     message_full = service.users().messages().get(userId='me', format='full', id=message_id).execute()
-                    messageObj = raw_message_to_obj(message_full)
 
-                    return
+                    ## THIS IS EACH OBJ
+                    messageObj = raw_message_to_obj(message_full)
+                    print(messageObj)
+
     except errors.HttpError as error:
         print('An HTTPError occurred: %s' % error)
 
