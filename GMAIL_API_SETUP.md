@@ -1,7 +1,5 @@
 ## GMAIL API SETUP
 
-We're going to follow (these instructions)[https://developers.google.com/gmail/api/quickstart/python]:
-
 **Go to https://console.developers.google.com/start/api?id=gmail. We will use this wizard to create or select a project in the Google Developers Console and automatically turn on the API. Click Continue.**
 
 ![gmail_api_step_01.png](instruction_imgs/gmail_api_step_01.png)
@@ -50,5 +48,7 @@ We're going to follow (these instructions)[https://developers.google.com/gmail/a
 
 ![gmail_api_step_12.png](instruction_imgs/gmail_api_step_12.png)
 
-This file should start with `client_secret_`. Move this file to the `Panorama` or `Panorama-master` directory.
+This file should start with `client_secret_`. Move this file to the `Panorama` or `Panorama-master` directory (the directory this file is in, that you just downloaded).
 
+Note:
+These instructions are adapted from [here](https://developers.google.com/gmail/api/quickstart/python).

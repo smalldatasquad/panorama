@@ -12,9 +12,12 @@ These are two Python scripts that searches and downloads raw data from your Gmai
 
 1. Python 3 
     1. First, you need Python 3.
-    2. (further installations to come here)
+    2. For OSX instructions. go to: http://python-guide-pt-br.readthedocs.io/en/latest/starting/install3/osx/
 2. Install the required libraries with pip.
     1. Type `pip3 install -r requirements.txt`
+3. Download (or clone) this repository
+    - Click on [this link](https://github.com/smalldatasquad/panorama/archive/master.zip) to download a .ZIP file. Move it to your desktop and unarchive the file (double-click in OSX).
+    - You should see a folder called `panorama-master`
     
 ## Gmail API setup
 
