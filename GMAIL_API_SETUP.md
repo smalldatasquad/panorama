@@ -50,6 +50,8 @@
 
 This file should start with `client_secret_`. Move this file to the `Panorama` or `Panorama-master` directory (the directory this file is in, that you just downloaded).
 
+do `pip3 install -r requirements.txt`
+
 **Lastly, execute `python3 gmail_0_setup.py`**
 
 Note:
